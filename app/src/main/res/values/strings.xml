@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Fruit Shop</string>
+    <string name="fruit_shop">FruitShop</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="login_as_guest">Login as Guest</string>
+    <string name="register">Register</string>
+    <string name="registration">Registration</string>
+    <string name="email">Email</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="password_again">Password Again</string>
+    <string name="shipping_address">Shipping Address</string>
+    <string name="logout">Logout</string>
+    <string name="description">Description</string>
+    <string name="price">Price</string>
+    <string name="details">Details</string>
+    <string name="item_image">Item Image</string>
+    <string name="add_to_cart">Add to Cart</string>
+    <string name="cart">Cart</string>
+    <string-array name="item_images">
+        <item>apple</item>
+        <item>banana</item>
+        <item>broccoli</item>
+        <item>cabbage</item>
+        <item>carrot</item>
+        <item>cherry</item>
+        <item>chilli</item>
+        <item>cucumber</item>
+        <item>orange</item>
+        <item>pineapple</item>
+        <item>potato</item>
+        <item>strawberry</item>
+        <item>tomato</item>
+        <item>watermelon</item>
+    </string-array>
+    <string-array name="item_descriptions">
+        <item>Fresh Red Apple</item>
+        <item>Ripe Yellow Banana</item>
+        <item>Green Broccoli</item>
+        <item>Fresh Green Cabbage</item>
+        <item>Crunchy Orange Carrot</item>
+        <item>Sweet Red Cherry</item>
+        <item>Spicy Red Chilli</item>
+        <item>Crisp Green Cucumber</item>
+        <item>Juicy Orange</item>
+        <item>Sweet Yellow Pineapple</item>
+        <item>Fresh Brown Potato</item>
+        <item>Delicious Red Strawberry</item>
+        <item>Fresh Red Tomato</item>
+        <item>Refreshing Green Watermelon</item>
+    </string-array>
+    <string-array name="item_prices">
+        <item>$1.99</item>
+        <item>$0.99</item>
+        <item>$2.99</item>
+        <item>$1.49</item>
+        <item>$0.79</item>
+        <item>$3.49</item>
+        <item>$0.49</item>
+        <item>$1.29</item>
+        <item>$2.49</item>
+        <item>$3.99</item>
+        <item>$0.59</item>
+        <item>$4.99</item>
+        <item>$1.79</item>
+        <item>$4.49</item>
+    </string-array>
+    <string-array name="item_details">
+        <item>Crisp and sweet apple, perfect for snacks.</item>
+        <item>Soft and delicious banana, rich in potassium.</item>
+        <item>Nutritious and flavorful broccoli, great for your health.</item>
+        <item>Fresh and crisp cabbage, ideal for salads.</item>
+        <item>Crunchy and sweet carrots, rich in vitamins.</item>
+        <item>Sweet and juicy cherries.</item>
+        <item>Spicy chilli, perfect for adding heat to your dishes.</item>
+        <item>Crisp and refreshing cucumber, great for salads.</item>
+        <item>Sweet and sour orange.</item>
+        <item>Sweet and juicy pineapple, perfect for a tropical treat.</item>
+        <item>Fresh and healthy potato, perfect for multiple dishes.</item>
+        <item>Sweet and juicy strawberries, rich in antioxidants.</item>
+        <item>Juicy and versatile tomato.</item>
+        <item>Sweet and refreshing watermelon, perfect for a summer day.</item>
+    </string-array>
+</resources>

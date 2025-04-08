@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--Common colors-->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!--Light Theme-->
+    <color name="light_primary">#4CAF50</color>
+    <color name="light_primary_variant">#2E7D32</color>
+    <color name="light_secondary">#FF9800</color>
+    <color name="light_secondary_variant">#FF5722</color>
+    <color name="light_background">#F5F5F5</color>
+    <color name="light_surface">#FFFFFF</color>
+    <color name="light_error">#B00020</color>
+    <color name="light_on_primary">#FFFFFF</color>
+    <color name="light_on_secondary">#000000</color>
+    <color name="light_on_background">#000000</color>
+    <color name="light_on_surface">#000000</color>
+    <color name="light_on_error">#FFFFFF</color>
+
+
+    <!--Dark Theme-->
+    <color name="dark_primary">#689F38</color>
+    <color name="dark_primary_variant">#33691E</color>
+    <color name="dark_secondary">#FFA000</color>
+    <color name="dark_secondary_variant">#FF6F00</color>
+    <color name="dark_background">#121212</color>
+    <color name="dark_surface">#1E1E1E</color>
+    <color name="dark_error">#CF6679</color>
+    <color name="dark_on_primary">#FFFFFF</color>
+    <color name="dark_on_secondary">#000000</color>
+    <color name="dark_on_background">#FFFFFF</color>
+    <color name="dark_on_surface">#FFFFFF</color>
+    <color name="dark_on_error">#000000</color>
+</resources>
