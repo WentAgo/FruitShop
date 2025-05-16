@@ -53,7 +53,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/details"
-                android:textColor="@color/black"/>
+                android:textColor="@color/black" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -64,7 +64,7 @@
                     android:id="@+id/quantityEditText"
                     android:layout_width="60dp"
                     android:layout_height="wrap_content"
-                    android:hint="1"
+                    android:hint="@string/_1"
                     android:inputType="number"
                     android:maxLength="2" />
 

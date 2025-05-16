@@ -19,6 +19,14 @@
     <string name="item_image">Item Image</string>
     <string name="add_to_cart">Add to Cart</string>
     <string name="cart">Cart</string>
+    <string name="your_cart_is_empty">Your cart is empty.</string>
+    <string name="total_0_00">Total: $0.00</string>
+    <string name="proceed_to_checkout">Proceed to Checkout</string>
+    <string name="qty_1">Qty: 1</string>
+    <string name="action_1">Action 1</string>
+    <string name="action_2">Action 2</string>
+    <string name="enter_new_quantity">Enter new quantity</string>
+    <string name="_1">1</string>
     <string-array name="item_images">
         <item>apple</item>
         <item>banana</item>

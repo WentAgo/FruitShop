@@ -30,15 +30,15 @@ import java.util.Map;
 
 public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder> {
 
+    private static final String TAG = "ItemAdapter_Cart";
     private List<Item> items;
-    private FirebaseFirestore db; // <-- Added
-    private FirebaseAuth mAuth;   // <-- Added
-    private static final String TAG = "ItemAdapter_Cart"; // For logging
+    private FirebaseFirestore db;
+    private FirebaseAuth mAuth;
 
     public ItemAdapter(List<Item> items) {
         this.items = items;
-        this.db = FirebaseFirestore.getInstance(); // Initialize Firestore
-        this.mAuth = FirebaseAuth.getInstance();   // Initialize FirebaseAuth
+        this.db = FirebaseFirestore.getInstance();
+        this.mAuth = FirebaseAuth.getInstance();
         Log.d(TAG, "Adapter constructor: db and mAuth initialized.");
         if (this.db == null) Log.e(TAG, "Firestore instance is NULL in constructor!");
         if (this.mAuth == null) Log.e(TAG, "FirebaseAuth instance is NULL in constructor!");
@@ -51,8 +51,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         return new ItemViewHolder(view);
     }
 
-    // In ItemViewHolder class:
-// public TextWatcher textWatcher;
 
     @Override
     public void onBindViewHolder(@NonNull ItemViewHolder holder, int position) {
@@ -89,9 +87,13 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
             }
             holder.textWatcher = new TextWatcher() {
                 @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                }
+
                 @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {}
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                }
+
                 @Override
                 public void afterTextChanged(Editable s) {
                     if (s.length() > 0) {
@@ -106,7 +108,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                     } else {
                         holder.quantity = 1;
                     }
-                    // Log.d(TAG, "Holder quantity set to: " + holder.quantity);
                 }
             };
             holder.quantityEditText.addTextChangedListener(holder.textWatcher);
@@ -124,7 +125,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                 }
 
                 String userId = firebaseCurrentUser.getUid();
-                String itemId = currentItem.getItemId(); // Assuming getItemId() returns a non-null, non-empty unique ID
+                String itemId = currentItem.getItemId();
 
                 if (itemId == null || itemId.isEmpty()) {
                     Log.e(TAG, "ItemID is null or empty for item: " + currentItem.getDescription());
@@ -134,38 +135,32 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
 
                 final int finalQuantityToAdd;
                 if (holder.quantity <= 0) {
-                    finalQuantityToAdd = 1; // Default to 1 if quantity is invalid
+                    finalQuantityToAdd = 1;
                 } else {
                     finalQuantityToAdd = holder.quantity;
                 }
 
-                DocumentReference cartItemRef = db.collection("carts").document(userId)
-                        .collection("items").document(itemId);
+                DocumentReference cartItemRef = db.collection("carts").document(userId).collection("items").document(itemId);
 
                 Log.d(TAG, "Attempting to access Firestore path: " + cartItemRef.getPath());
 
                 cartItemRef.get().addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         if (task.getResult() != null && task.getResult().exists()) {
-                            // Item already exists in cart, update its quantity
                             Log.d(TAG, "Item " + itemId + " exists in cart. Updating quantity by " + finalQuantityToAdd);
-                            cartItemRef.update("quantity", FieldValue.increment(finalQuantityToAdd))
-                                    .addOnSuccessListener(aVoid -> {
-                                        Log.d(TAG, "SUCCESS: Quantity updated for " + itemId);
-                                        Toast.makeText(v.getContext(), currentItem.getDescription() + " quantity updated in cart.", Toast.LENGTH_SHORT).show();
-                                    })
-                                    .addOnFailureListener(e -> {
-                                        Log.e(TAG, "FAILURE: Could not update quantity for " + itemId, e);
-                                        Toast.makeText(v.getContext(), "Failed to update cart: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                                    });
+                            cartItemRef.update("quantity", FieldValue.increment(finalQuantityToAdd)).addOnSuccessListener(aVoid -> {
+                                Log.d(TAG, "SUCCESS: Quantity updated for " + itemId);
+                                Toast.makeText(v.getContext(), currentItem.getDescription() + " quantity updated in cart.", Toast.LENGTH_SHORT).show();
+                            }).addOnFailureListener(e -> {
+                                Log.e(TAG, "FAILURE: Could not update quantity for " + itemId, e);
+                                Toast.makeText(v.getContext(), "Failed to update cart: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                            });
                         } else {
-                            // Item does not exist in cart, add it as a new item
                             Log.d(TAG, "Item " + itemId + " does not exist in cart. Adding new item.");
                             Map<String, Object> cartItemData = new HashMap<>();
                             cartItemData.put("itemName", currentItem.getDescription());
                             cartItemData.put("itemId", currentItem.getItemId());
 
-                            // Price parsing
                             String priceString = currentItem.getPrice().replaceAll("[^\\d.]", "");
                             double priceValue = 0.0;
                             if (!priceString.isEmpty()) {
@@ -173,33 +168,27 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                                     priceValue = Double.parseDouble(priceString);
                                 } catch (NumberFormatException e) {
                                     Log.e(TAG, "Error parsing price: " + currentItem.getPrice() + " for item " + itemId, e);
-                                    // Decide how to handle price parsing errors, e.g., skip adding or add with price 0
                                 }
                             }
                             cartItemData.put("itemPrice", priceValue);
                             cartItemData.put("quantity", finalQuantityToAdd);
                             cartItemData.put("timestamp", FieldValue.serverTimestamp());
 
-                            // Add imageUrl if available
-                            String imageUrl = currentItem.getImageUrl(); // Get it from your Item object
+                            String imageUrl = currentItem.getImageUrl();
                             if (imageUrl != null && !imageUrl.isEmpty()) {
                                 cartItemData.put("imageUrl", imageUrl);
                                 Log.d(TAG, "Adding imageUrl for " + itemId + ": " + imageUrl);
                             } else {
                                 Log.w(TAG, "imageUrl is null or empty for item " + itemId + ". Not adding to cart data.");
-                                // Optionally, you could store a default placeholder URL:
-                                // cartItemData.put("imageUrl", "your_default_placeholder_image_url");
                             }
 
-                            cartItemRef.set(cartItemData, SetOptions.merge()) // Use merge to be safe, though set should be fine for new doc
-                                    .addOnSuccessListener(aVoid -> {
-                                        Log.d(TAG, "SUCCESS: Item " + itemId + " added to cart.");
-                                        Toast.makeText(v.getContext(), currentItem.getDescription() + " added to cart.", Toast.LENGTH_SHORT).show();
-                                    })
-                                    .addOnFailureListener(e -> {
-                                        Log.e(TAG, "FAILURE: Could not add item " + itemId + " to cart.", e);
-                                        Toast.makeText(v.getContext(), "Failed to add to cart: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                                    });
+                            cartItemRef.set(cartItemData, SetOptions.merge()).addOnSuccessListener(aVoid -> {
+                                Log.d(TAG, "SUCCESS: Item " + itemId + " added to cart.");
+                                Toast.makeText(v.getContext(), currentItem.getDescription() + " added to cart.", Toast.LENGTH_SHORT).show();
+                            }).addOnFailureListener(e -> {
+                                Log.e(TAG, "FAILURE: Could not add item " + itemId + " to cart.", e);
+                                Toast.makeText(v.getContext(), "Failed to add to cart: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                            });
                         }
                     } else {
                         Log.e(TAG, "FAILURE: Error checking cart for item " + itemId, task.getException());
@@ -209,6 +198,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
             });
         }
     }
+
     @Override
     public int getItemCount() {
         return items.size();

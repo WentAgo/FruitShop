@@ -1,6 +1,5 @@
 package com.example.fruitshop;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -21,6 +20,8 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class RegisterActivity extends AppCompatActivity {
 
+    private static final String LOG_TAG = RegisterActivity.class.getSimpleName();
+    private static final String LOG_ALL = "logall";
     private EditText usernameEditText;
     private EditText emailEditText;
     private EditText phoneEditText;
@@ -28,11 +29,7 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText passwordAgainEditText;
     private EditText shippingAddressEditText;
     private Button registerButton;
-
     private FirebaseAuth mAuth;
-
-    private static final String LOG_TAG = RegisterActivity.class.getSimpleName();
-    private static final String LOG_ALL = "logall";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +44,6 @@ public class RegisterActivity extends AppCompatActivity {
         shippingAddressEditText = findViewById(R.id.shippingAddressEditText);
         registerButton = findViewById(R.id.registerButton);
 
-        // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
 
         registerButton.setOnClickListener(new View.OnClickListener() {
@@ -66,7 +62,6 @@ public class RegisterActivity extends AppCompatActivity {
         String passwordAgain = passwordAgainEditText.getText().toString().trim();
         String shippingAddress = shippingAddressEditText.getText().toString().trim();
 
-        // Basic input validation
         if (TextUtils.isEmpty(username)) {
             usernameEditText.setError("Username is required.");
             return;
@@ -112,35 +107,28 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        // Use Firebase Authentication to create the user
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(LOG_TAG, "createUserWithEmail:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            Toast.makeText(RegisterActivity.this, "User registered successfully!", Toast.LENGTH_SHORT).show();
+        mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if (task.isSuccessful()) {
+                    Log.d(LOG_TAG, "createUserWithEmail:success");
+                    FirebaseUser user = mAuth.getCurrentUser();
+                    Toast.makeText(RegisterActivity.this, "User registered successfully!", Toast.LENGTH_SHORT).show();
 
-                            // Clear the fields after successful "registration"
-                            usernameEditText.setText("");
-                            emailEditText.setText("");
-                            phoneEditText.setText("");
-                            passwordEditText.setText("");
-                            passwordAgainEditText.setText("");
-                            shippingAddressEditText.setText("");
+                    usernameEditText.setText("");
+                    emailEditText.setText("");
+                    phoneEditText.setText("");
+                    passwordEditText.setText("");
+                    passwordAgainEditText.setText("");
+                    shippingAddressEditText.setText("");
 
-                            // Navigate to MainActivity
-                            finish();
+                    finish();
 
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(LOG_TAG, "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(RegisterActivity.this, "Registration failed.",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
+                } else {
+                    Log.w(LOG_TAG, "createUserWithEmail:failure", task.getException());
+                    Toast.makeText(RegisterActivity.this, "Registration failed.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 }

@@ -14,11 +14,11 @@
         android:background="?attr/colorPrimary"
         android:elevation="4dp"
         android:theme="?attr/actionBarTheme"
-        app:title="Shopping Cart"
-        app:titleTextColor="@android:color/white"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:title="Shopping Cart"
+        app:titleTextColor="@android:color/white" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/cartRecyclerView"
@@ -26,52 +26,51 @@
         android:layout_height="0dp"
         android:padding="8dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintTop_toBottomOf="@id/cartToolbar"
         app:layout_constraintBottom_toTopOf="@+id/bottomSummaryLayout"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cartToolbar"
         tools:listitem="@layout/cart_item_row" />
 
     <TextView
         android:id="@+id/emptyCartTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Your cart is empty."
+        android:text="@string/your_cart_is_empty"
         android:textAppearance="?attr/textAppearanceListItem"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/cartToolbar"
         app:layout_constraintBottom_toTopOf="@+id/bottomSummaryLayout"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        tools:visibility="visible"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cartToolbar"
+        tools:visibility="visible" />
 
     <LinearLayout
         android:id="@+id/bottomSummaryLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp"
         android:background="?android:attr/windowBackground"
         android:elevation="8dp"
+        android:orientation="vertical"
+        android:padding="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
         <TextView
             android:id="@+id/totalPriceTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Total: $0.00"
-            android:textAppearance="?attr/textAppearanceHeadline6"
+            android:layout_marginBottom="8dp"
             android:gravity="end"
-            android:layout_marginBottom="8dp"/>
+            android:text="@string/total_0_00"
+            android:textAppearance="?attr/textAppearanceHeadline6" />
 
         <Button
             android:id="@+id/checkoutButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Proceed to Checkout"
-            />
+            android:text="@string/proceed_to_checkout" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

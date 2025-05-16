@@ -2,23 +2,23 @@ package com.example.fruitshop;
 
 import com.google.firebase.firestore.PropertyName;
 import com.google.firebase.firestore.ServerTimestamp;
+
 import java.util.Date;
 
 public class CartItem {
 
-    private String itemId; // Matches the field in your Firestore document
-    private String itemName; // Matches 'itemName' in Firestore
-    private double itemPrice;  // Matches 'itemPrice' in Firestore (stored as a number)
-    private long quantity;     // Matches 'quantity' in Firestore
+    private String itemId;
+    private String itemName;
+    private double itemPrice;
+    private long quantity;
 
     @ServerTimestamp
-    private Date timestamp;    // Matches 'timestamp' in Firestore
+    private Date timestamp;
 
-    // Default constructor is required for Firestore data mapping
     public CartItem() {
     }
 
-    public CartItem(String itemId, String itemName, double itemPrice, long quantity, String imageUrl) {
+    public CartItem(String itemId, String itemName, double itemPrice, long quantity) {
         this.itemId = itemId;
         this.itemName = itemName;
         this.itemPrice = itemPrice;
@@ -58,7 +58,7 @@ public class CartItem {
     }
 
 
-    @PropertyName("timestamp") // Ensure correct mapping if getter name differs from field
+    @PropertyName("timestamp")
     public Date getTimestamp() {
         return timestamp;
     }
@@ -68,19 +68,10 @@ public class CartItem {
         this.timestamp = timestamp;
     }
 
-    // --- Helper methods for display ---
-
-    /**
-     * Returns the price formatted as a currency string.
-     * Consider using NumberFormat for locale-specific currency formatting.
-     */
     public String getFormattedPrice() {
         return String.format("$%.2f", itemPrice);
     }
 
-    /**
-     * Returns the total price for this cart item (itemPrice * quantity).
-     */
     public double getTotalItemPrice() {
         return itemPrice * quantity;
     }

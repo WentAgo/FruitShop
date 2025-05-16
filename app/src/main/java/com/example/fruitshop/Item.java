@@ -8,6 +8,9 @@ public class Item {
     private String details;
     private String imageUrl;
 
+    public Item() {
+    }
+
     public Item(String itemId, int imageId, String description, String price, String details) {
         this.itemId = itemId;
         this.imageId = imageId;
@@ -15,12 +18,15 @@ public class Item {
         this.price = price;
         this.details = details;
     }
+
     public String getItemId() {
         return itemId;
     }
+
     public int getImageId() {
         return imageId;
     }
+
     public String getDescription() {
         return description;
     }
@@ -32,10 +38,13 @@ public class Item {
     public String getDetails() {
         return details;
     }
-    public String getImageUrl() { return imageUrl; }
-    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
-    public Item() {
-        // Default constructor required for calls to DataSnapshot.getValue(Item.class)
-        // or DocumentSnapshot.toObject(Item.class)
+
+    public String getImageUrl() {
+        return imageUrl;
     }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
 }

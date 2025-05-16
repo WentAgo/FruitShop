@@ -29,8 +29,8 @@
         <activity
             android:name=".CartActivity"
             android:label="Shopping Cart"
-            android:theme="@style/Theme.FruitShop.NoActionBar"
-            android:parentActivityName=".HomePageActivity">  <!-- Optional: if HomePage is parent -->
+            android:parentActivityName=".HomePageActivity"
+            android:theme="@style/Theme.FruitShop.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".HomePageActivity" />

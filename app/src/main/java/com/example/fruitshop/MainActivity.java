@@ -20,15 +20,13 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String LOG_TAG = MainActivity.class.getSimpleName();
     private EditText emailEditText;
     private EditText passwordEditText;
     private Button loginButton;
     private Button guestLoginButton;
     private Button registerButton;
-
     private FirebaseAuth mAuth;
-
-    private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,13 +39,11 @@ public class MainActivity extends AppCompatActivity {
         guestLoginButton = findViewById(R.id.guestLoginButton);
         registerButton = findViewById(R.id.registerButton);
 
-        // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
 
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Navigate to RegisterActivity
                 Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
                 startActivity(intent);
             }
@@ -63,9 +59,7 @@ public class MainActivity extends AppCompatActivity {
         guestLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Handle guest login here.
                 Toast.makeText(MainActivity.this, "Login as Guest", Toast.LENGTH_SHORT).show();
-                // Navigate to HomePageActivity
                 Intent intent = new Intent(MainActivity.this, HomePageActivity.class);
                 startActivity(intent);
             }
@@ -76,7 +70,6 @@ public class MainActivity extends AppCompatActivity {
         String email = emailEditText.getText().toString().trim();
         String password = passwordEditText.getText().toString().trim();
 
-        // Basic input validation
         if (TextUtils.isEmpty(email)) {
             emailEditText.setError("Email is required.");
             return;
@@ -87,26 +80,19 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        // Sign in with Firebase Authentication
-        mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(LOG_TAG, "signInWithEmail:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-
-                            // Navigate to HomePageActivity
-                            Intent intent = new Intent(MainActivity.this, HomePageActivity.class);
-                            startActivity(intent);
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(LOG_TAG, "signInWithEmail:failure", task.getException());
-                            Toast.makeText(MainActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
+        mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if (task.isSuccessful()) {
+                    Log.d(LOG_TAG, "signInWithEmail:success");
+                    FirebaseUser user = mAuth.getCurrentUser();
+                    Intent intent = new Intent(MainActivity.this, HomePageActivity.class);
+                    startActivity(intent);
+                } else {
+                    Log.w(LOG_TAG, "signInWithEmail:failure", task.getException());
+                    Toast.makeText(MainActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 }
