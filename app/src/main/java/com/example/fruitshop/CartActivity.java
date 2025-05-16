@@ -5,10 +5,12 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast; // Keep for potential one-liners in listener
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -16,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -72,6 +75,12 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
         // Initial UI state:
         // The choice of calling updateUIForEmptyCart() here or within loadCartItems is fine.
         // If currentUser is null, updateUIForEmptyCart() is called, which is good.
+
+        // Initialize the adapter with 'this' as the listener
+        cartAdapter = new CartAdapter(this, cartItemList, this); // Ensure 'this' is passed
+        cartRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        cartRecyclerView.setAdapter(cartAdapter);
+
 
         // Load cart items from Firestore
         if (currentUser != null) {
@@ -349,18 +358,150 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
     // --- OnCartItemInteractionListener Implementation ---
 
     @Override
-    public void onActionButton1Clicked(CartItem item, int position) {
-        // Content will be provided later
-        // Example: Toast.makeText(this, item.getItemName() + " Action 1", Toast.LENGTH_SHORT).show();
+    public void onChangeQuantityClicked(CartItem item, int position) {
+        if (item == null || item.getItemId() == null) {
+            Log.e(TAG, "Cannot change quantity, item or itemId is null");
+            Toast.makeText(this, "Error: Item data missing.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Log.d(TAG, "onChangeQuantityClicked for: " + item.getItemName() + " at position " + position);
+
+        // Create an AlertDialog to get new quantity
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Change Quantity for " + item.getItemName());
+
+        final View customLayout = getLayoutInflater().inflate(R.layout.dialog_change_quantity, null);
+        builder.setView(customLayout);
+
+        final EditText editTextQuantity = customLayout.findViewById(R.id.editTextQuantity);
+        editTextQuantity.setText(String.valueOf(item.getQuantity())); // Pre-fill current quantity
+        editTextQuantity.setSelection(editTextQuantity.getText().length()); // Move cursor to end
+
+        builder.setPositiveButton("Update", (dialog, which) -> {
+            String newQuantityStr = editTextQuantity.getText().toString();
+            if (newQuantityStr.isEmpty()) {
+                Toast.makeText(CartActivity.this, "Quantity cannot be empty.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            try {
+                int newQuantity = Integer.parseInt(newQuantityStr);
+                if (newQuantity < 0 || newQuantity > 999) { // Validate quantity
+                    Toast.makeText(CartActivity.this, "Quantity must be between 0 and 999.", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                if (newQuantity == 0) {
+                    // If quantity is 0, ask if user wants to delete the item
+                    new AlertDialog.Builder(CartActivity.this)
+                            .setTitle("Remove Item?")
+                            .setMessage(item.getItemName() + " quantity is 0. Would you like to remove it from the cart?")
+                            .setPositiveButton("Yes, Remove", (d, w) -> deleteItemFromCart(item, position))
+                            .setNegativeButton("No, Keep at 0", (d, w) -> updateItemQuantityInFirestore(item, 0, position)) // Or simply do nothing if 0 isn't allowed
+                            .setNeutralButton("Cancel", null)
+                            .show();
+                } else {
+                    updateItemQuantityInFirestore(item, newQuantity, position);
+                }
+            } catch (NumberFormatException e) {
+                Toast.makeText(CartActivity.this, "Invalid quantity format.", Toast.LENGTH_SHORT).show();
+            }
+        });
+        builder.setNegativeButton("Cancel", null);
+        builder.create().show();
     }
 
     @Override
-    public void onActionButton2Clicked(CartItem item, int position) {
-        // Content will be provided later
-        // Example: Toast.makeText(this, item.getItemName() + " Action 2", Toast.LENGTH_SHORT).show();
+    public void onDeleteItemClicked(CartItem item, int position) {
+        if (item == null || item.getItemId() == null) {
+            Log.e(TAG, "Cannot delete, item or itemId is null");
+            Toast.makeText(this, "Error: Item data missing.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Log.d(TAG, "onDeleteItemClicked for: " + item.getItemName() + " at position " + position);
+
+        new AlertDialog.Builder(this)
+                .setTitle("Delete Item")
+                .setMessage("Are you sure you want to remove " + item.getItemName() + " from your cart?")
+                .setPositiveButton("Delete", (dialog, which) -> {
+                    deleteItemFromCart(item, position);
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
-    private void removeItemFromCart(CartItem item, int position) {
-        // Content will be provided later
+    // Helper method to update quantity in Firestore
+    private void updateItemQuantityInFirestore(CartItem item, int newQuantity, int position) {
+        if (currentUser == null || item.getItemId() == null) {
+            Toast.makeText(this, "Error updating quantity. User or Item ID missing.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String userId = currentUser.getUid();
+        DocumentReference itemRef = db.collection("carts").document(userId)
+                .collection("items").document(item.getItemId());
+
+        itemRef.update("quantity", newQuantity)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "Quantity updated successfully for " + item.getItemName());
+                    // Update item in local list and notify adapter
+                    item.setQuantity(newQuantity); // Assuming CartItem has setQuantity
+                    cartItemList.set(position, item);
+                    cartAdapter.notifyItemChanged(position);
+                    calculateAndDisplayTotalPrice(); // Recalculate total
+                    Toast.makeText(CartActivity.this, item.getItemName() + " quantity updated.", Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error updating quantity for " + item.getItemName(), e);
+                    Toast.makeText(CartActivity.this, "Failed to update quantity.", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    // Add this method to your CartActivity.java
+
+    private void deleteItemFromCart(CartItem item, int position) {
+        if (currentUser == null) {
+            Toast.makeText(this, "You must be logged in to modify the cart.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (item == null || item.getItemId() == null || item.getItemId().isEmpty()) {
+            Toast.makeText(this, "Cannot remove item: Invalid item data.", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "deleteItemFromCart: item or itemId is null/empty.");
+            return;
+        }
+
+        String userId = currentUser.getUid();
+        String itemId = item.getItemId(); // Assuming CartItem has getItemId()
+
+        Log.d(TAG, "Attempting to delete item: " + itemId + " for user: " + userId);
+
+        db.collection("carts").document(userId).collection("items").document(itemId)
+                .delete()
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "Item " + itemId + " successfully deleted from Firestore.");
+                    // Remove item from the local list and notify adapter
+                    if (position >= 0 && position < cartItemList.size()) {
+                        cartItemList.remove(position);
+                        // It's important to notify the adapter about the exact item removed
+                        // for animations and correct state.
+                        cartAdapter.notifyItemRemoved(position);
+                        // If you also want to update subsequent items' positions:
+                        cartAdapter.notifyItemRangeChanged(position, cartItemList.size());
+
+                        updateCartUI(); // Recalculate total and update UI accordingly
+                        Toast.makeText(CartActivity.this, item.getItemName() + " removed from cart.", Toast.LENGTH_SHORT).show();
+
+                        // If the cart becomes empty after deletion
+                        if (cartItemList.isEmpty()) {
+                            updateUIForEmptyCart();
+                        }
+                    } else {
+                        Log.w(TAG, "Item deleted from Firestore, but position " + position + " was out of bounds for local list update. List size: " + cartItemList.size());
+                        // Fallback to reloading cart items if position is invalid, though ideally this shouldn't happen.
+                        loadCartItems();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error deleting item " + itemId + " from Firestore", e);
+                    Toast.makeText(CartActivity.this, "Failed to remove " + item.getItemName() + ". Please try again.", Toast.LENGTH_SHORT).show();
+                });
     }
 }

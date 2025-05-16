@@ -26,9 +26,11 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
 
     // Optional: Listener for item interactions
     public interface OnCartItemInteractionListener {
-        void onActionButton1Clicked(CartItem item, int position);
-        void onActionButton2Clicked(CartItem item, int position);
-        // Add other interactions like removeItem if needed
+        void onChangeQuantityClicked(CartItem item, int position); // To initiate quantity change
+        void onDeleteItemClicked(CartItem item, int position);    // To initiate deletion
+        // You might have other methods here like onActionButton1Clicked,
+        // you can either rename them or add these new specific ones.
+        // For clarity, let's assume you're adding these specific ones.
     }
 
     private OnCartItemInteractionListener listener;
@@ -131,19 +133,19 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         }
 
         // 3. Handle Button Clicks (using listener or default Toast)
+        holder.button1.setText("Change Qty"); // Or use an icon
         holder.button1.setOnClickListener(v -> {
             if (listener != null) {
-                listener.onActionButton1Clicked(currentCartItem, holder.getAdapterPosition());
-            } else {
-                Toast.makeText(context, currentCartItem.getItemName() + ": Action 1 clicked", Toast.LENGTH_SHORT).show();
+                // Pass the current item and its adapter position
+                listener.onChangeQuantityClicked(currentCartItem, holder.getAdapterPosition());
             }
         });
 
+        holder.button2.setText("Delete"); // Or use an icon
         holder.button2.setOnClickListener(v -> {
             if (listener != null) {
-                listener.onActionButton2Clicked(currentCartItem, holder.getAdapterPosition());
-            } else {
-                Toast.makeText(context, currentCartItem.getItemName() + ": Action 2 clicked", Toast.LENGTH_SHORT).show();
+                // Pass the current item and its adapter position
+                listener.onDeleteItemClicked(currentCartItem, holder.getAdapterPosition());
             }
         });
     }
