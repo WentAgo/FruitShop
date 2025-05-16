@@ -26,6 +26,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".CartActivity"
+            android:label="Shopping Cart"
+            android:theme="@style/Theme.FruitShop.NoActionBar"
+            android:parentActivityName=".HomePageActivity">  <!-- Optional: if HomePage is parent -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".HomePageActivity" />
+        </activity>
     </application>
 
 </manifest>

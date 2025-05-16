@@ -18,4 +18,8 @@
         <item name="colorError">@color/dark_error</item>
         <item name="colorOnError">@color/dark_on_error</item>
     </style>
+    <style name="Theme.FruitShop.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
 </resources>

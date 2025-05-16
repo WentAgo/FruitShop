@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class HomePageActivity extends AppCompatActivity {
 
@@ -46,17 +47,32 @@ public class HomePageActivity extends AppCompatActivity {
         return true;
     }
 
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.menu_logout) {
+        int itemId = item.getItemId(); // Get the ID of the selected item
+
+        if (itemId == R.id.cart_menu_item) { // <<<< ADD THIS CASE
+            // User clicked the cart icon, open CartActivity
+            Intent intent = new Intent(this, CartActivity.class);
+            startActivity(intent);
+            return true; // Event handled
+        } else if (itemId == R.id.menu_logout) {
             // Navigate back to MainActivity (login screen)
             Intent intent = new Intent(this, MainActivity.class);
             // Clear activity stack so the user can't go back to this activity using the back button
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
-            return true;
+            finish();
+            return true; // Event handled
         }
-        return super.onOptionsItemSelected(item);
+        // If you had an "Up" button in HomePageActivity's toolbar, you'd handle android.R.id.home here
+        // else if (itemId == android.R.id.home) {
+        //     finish(); // Or NavUtils.navigateUpFromSameTask(this);
+        //     return true;
+        // }
+
+        return super.onOptionsItemSelected(item); // Delegate to parent for any other unhandled items
     }
     private void loadItemsFromResources() {
         // Get the string arrays from resources
@@ -70,21 +86,22 @@ public class HomePageActivity extends AppCompatActivity {
 
         // Create items and add them to the list
         for (int i = 0; i < minLength; i++) {
-            String imageName = imageNames[i].toLowerCase(); //convert to lower case to avoid problems
+            String itemId = imageNames[i].toLowerCase(Locale.ROOT).replaceAll("\\s+", "_"); // Sanitize a bit
+            String imageNameForDrawable = imageNames[i].toLowerCase(Locale.ROOT); // For looking up drawable
             String description = descriptions[i];
             String price = prices[i];
             String detail = details[i];
 
             // Use getIdentifier to get the resource ID dynamically
-            int imageId = getResources().getIdentifier(imageName, "drawable", getPackageName());
-            Log.d(LOG_TAG, "ImageId for "+imageName+" is " + imageId);
-
+            int imageId = getResources().getIdentifier(imageNameForDrawable, "drawable", getPackageName());
+            Log.d(LOG_TAG, "ImageId for " + imageNameForDrawable + " is " + imageId + ", itemId: " + itemId);
             // Check if the resource was found
             if (imageId != 0) {
-                Item item = new Item(imageId,description, price, detail);
+                // Create Item object with the new itemId
+                Item item = new Item(itemId, imageId, description, price, detail);
                 itemsList.add(item);
             } else {
-                Log.e(LOG_TAG, "Could not find resource with name: " + imageName);
+                Log.e(LOG_TAG, "Could not find resource with name: " + imageNameForDrawable);
             }
 
         }
