@@ -10,9 +10,6 @@ public class CartItem {
     private String itemName; // Matches 'itemName' in Firestore
     private double itemPrice;  // Matches 'itemPrice' in Firestore (stored as a number)
     private long quantity;     // Matches 'quantity' in Firestore
-    private String imageUrl;   // Optional: if you store this in the cart document for direct display
-    // If you don't store imageUrl in the cart item, you might need to fetch it
-    // from your main "products" collection using the itemId.
 
     @ServerTimestamp
     private Date timestamp;    // Matches 'timestamp' in Firestore
@@ -26,7 +23,6 @@ public class CartItem {
         this.itemName = itemName;
         this.itemPrice = itemPrice;
         this.quantity = quantity;
-        this.imageUrl = imageUrl; // Can be null if not used/stored directly in cart
     }
 
     public String getItemId() {
@@ -61,13 +57,6 @@ public class CartItem {
         this.quantity = quantity;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
 
     @PropertyName("timestamp") // Ensure correct mapping if getter name differs from field
     public Date getTimestamp() {

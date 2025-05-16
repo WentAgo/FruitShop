@@ -1,6 +1,7 @@
 package com.example.fruitshop;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -59,49 +60,77 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         CartItem currentCartItem = cartItemList.get(position);
 
         if (currentCartItem == null) {
-            return; // Should not happen if list is managed properly
+            // Should not happen if list is managed properly, but good for safety
+            Log.e("CartAdapter", "currentCartItem is null at position " + position);
+            // Optionally set views to some default error state or return
+            return;
         }
 
+        // 1. Set Textual Data
         holder.descriptionTextView.setText(currentCartItem.getItemName());
         holder.priceTextView.setText(String.format(Locale.getDefault(), "$%.2f", currentCartItem.getItemPrice()));
         holder.quantityTextView.setText(String.format(Locale.getDefault(), "Qty: %d", currentCartItem.getQuantity()));
 
-        // Use a placeholder if details are not part of CartItem or not always present
-        // For now, assuming CartItem doesn't have 'details'. If it does, uncomment and use:
-        // holder.detailsTextView.setText(currentCartItem.getDetails());
-        // If details are not in CartItem, you might want to hide this TextView or set default text.
+        // Handle detailsTextView (assuming it might not always be directly in CartItem or used)
+        // If your CartItem has a specific 'details' field you want to show, use it.
+        // Otherwise, you might clear it, hide it, or set a generic description.
+        // For now, let's assume details are part of itemName or not shown separately in the cart row.
         if (holder.detailsTextView != null) {
-            // Example: if CartItem has a getDetails method
+            // If you have a getDetails() in CartItem:
             // if (currentCartItem.getDetails() != null && !currentCartItem.getDetails().isEmpty()) {
             //    holder.detailsTextView.setText(currentCartItem.getDetails());
             //    holder.detailsTextView.setVisibility(View.VISIBLE);
             // } else {
             //    holder.detailsTextView.setVisibility(View.GONE); // Or set some default text
             // }
-            // For now, let's assume details aren't directly on CartItem or it's optional
-            // and might be handled by the data you put into itemName.
-            // If you want details here, ensure CartItem has a getDetails() method and it's populated.
-            // For the layout you provided (cart_item_row.xml based on items.xml), it expects details.
-            // If your CartItem doesn't have details, this will show "@string/details".
-            // You might want to fetch full item details or simplify the cart_item_row.
-            // Let's assume for now CartItem might not have details, so we clear it or hide it.
-            holder.detailsTextView.setText(""); // Clear it or set specific cart item details if available
+            // For now, if cart_item_row.xml has detailsTextView but CartItem doesn't provide specific details for it:
+            holder.detailsTextView.setVisibility(View.GONE); // Or setText("")
         }
 
 
-        // Load image using Glide
-        if (currentCartItem.getImageUrl() != null && !currentCartItem.getImageUrl().isEmpty()) {
-            Glide.with(context)
-                    .load(currentCartItem.getImageUrl())
-                    .placeholder(R.drawable.default_image_placeholder) // Optional: a placeholder drawable
-                    .error(R.drawable.default_image_placeholder)       // Optional: an error drawable
-                    .into(holder.imageView);
+        // 2. Image Loading Logic (Focus on itemId for local drawables)
+        String itemId = currentCartItem.getItemId(); // This comes from Firestore
+
+        Log.d("CartAdapter", "Binding item: " + currentCartItem.getItemName() + ", Position: " + position + ", ItemID from CartItem: '" + itemId + "'");
+
+        Context context = holder.imageView.getContext(); // Get context from one of the views in holder
+
+        if (itemId != null && !itemId.isEmpty()) {
+            // Assuming itemId is already in the correct format to match drawable names
+            // (e.g., "apple" for "apple.png"). If not, apply transformations here.
+            // String drawableName = itemId.toLowerCase(Locale.ROOT).replace(" ", "_"); // Example transformation
+            String drawableName = itemId; // Use directly if itemId in DB matches drawable name format
+
+            int imageResourceId = context.getResources().getIdentifier(
+                    drawableName,
+                    "drawable",
+                    context.getPackageName()
+            );
+
+            Log.d("CartAdapter", "Attempting to load drawable. Name derived from itemId: '" + drawableName + "'. Found Resource ID: " + imageResourceId);
+
+            if (imageResourceId != 0) { // Resource ID found
+                Glide.with(context)
+                        .load(imageResourceId) // Load from resource ID
+                        .placeholder(R.drawable.default_image_placeholder) // Replace with your actual placeholder
+                        .error(R.drawable.default_image_placeholder)       // Replace with your actual error drawable
+                        .into(holder.imageView);
+            } else {
+                // Drawable resource NOT found based on itemId
+                Log.w("CartAdapter", "Drawable resource not found for name: '" + drawableName + "' (derived from itemId: '" + itemId + "')");
+                Glide.with(context)
+                        .load(R.drawable.default_image_placeholder) // Show error/default image
+                        .into(holder.imageView);
+            }
         } else {
-            // Set a default image or hide ImageView if no URL
-            holder.imageView.setImageResource(R.drawable.default_image_placeholder); // Replace with your placeholder
+            // itemId itself is null or empty in the CartItem from Firestore
+            Log.w("CartAdapter", "ItemID is null or empty for item: " + currentCartItem.getItemName());
+            Glide.with(context)
+                    .load(R.drawable.default_image_placeholder) // Show placeholder
+                    .into(holder.imageView);
         }
 
-        // Handle Button 1 click
+        // 3. Handle Button Clicks (using listener or default Toast)
         holder.button1.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onActionButton1Clicked(currentCartItem, holder.getAdapterPosition());
@@ -110,7 +139,6 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             }
         });
 
-        // Handle Button 2 click
         holder.button2.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onActionButton2Clicked(currentCartItem, holder.getAdapterPosition());
@@ -119,7 +147,6 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             }
         });
     }
-
     @Override
     public int getItemCount() {
         return cartItemList == null ? 0 : cartItemList.size();

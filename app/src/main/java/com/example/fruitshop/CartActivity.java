@@ -224,7 +224,6 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
                                 Log.d(TAG, "Loaded item: " + cartItem.getItemName() +
                                         ", Qty: " + cartItem.getQuantity() +
                                         ", Price: " + cartItem.getItemPrice() +
-                                        ", ImageURL: " + cartItem.getImageUrl() +
                                         ", ID: " + cartItem.getItemId());
                             }
                             Log.d(TAG, "Total items loaded: " + cartItemList.size());
